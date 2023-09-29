@@ -66,6 +66,7 @@
 	- 印出結束的畫面，並詢問是否需要再次遊戲
 程式碼:
 **main : 在此呼叫所有需要的程式 及 遊戲結束，是否繼續的判定也在這裡**
+
 main PROC
 	g:
 	call rule
@@ -98,6 +99,7 @@ main ENDP
 
 --------------------------------------------------------------
 **rule : 最開始顯示的畫面，包含了遊戲名字、遊玩說明**
+
 rule PROC
 	call printBackground 	;印出邊框以及下方的道路
 	call printTreeA		 	;印出大樹，這裡只是拿來裝飾
@@ -118,6 +120,7 @@ rule ENDP
   
 --------------------------------------------------------------
 **selectDefc : 選擇難度**
+
 selectDefc PROC
     call printBackground
     call printTreeA
@@ -135,7 +138,7 @@ selectDefc PROC
     mGotoXY 20, 9
     mwrite ">---------------------------------------------------<"
     C1:			
- ***這裡是做輸入判定，只接受輸入S、N、H及其小寫，分別是簡單、普通、困難難度***
+ 	;這裡是做輸入判定，只接受輸入S、N、H及其小寫，分別是簡單、普通、困難難度
         call readchar
         mov ecx, eax				;將輸入內容暫存到 ecx，eax 後續會用來放置遊戲進行速度
         .IF al=="S" || al=="s"
@@ -153,13 +156,13 @@ selectDefc PROC
         .ELSE
             jmp C1		;如果非以上三者輸入會跳回一開始重新做一次
         .ENDIF
-    *****選完難度後會印出使用者選擇的難度*****
+    ;選完難度後會印出使用者選擇的難度
     mGotoXY 20, 5
     mwrite ">                                                   <"
     mGotoXY 20, 6
     mwrite ">          Your choice is:                          <"
     mGotoXY 50, 6
-    *****判定輸入印出相對的難度*****
+    ;判定輸入印出相對的難度
     .IF al=="N" || al=="n"
         mwrite "Normal mode"
     .ELSEIF al=="S" || al=="s"
@@ -181,6 +184,7 @@ selectDefc ENDP
 
 --------------------------------------------------------------
 **game : 遊戲開始的主要函式**
+
 game PROC
 	call printBackground			;印出邊框及下方地板
 	mGotoXY 73 , 1
@@ -190,10 +194,10 @@ game PROC
 	call WriteString    ; print diamond
 
 
-     *****這裡用了gamecontinue判斷遊戲是否還繼續*****
+     ;這裡用了gamecontinue判斷遊戲是否還繼續
 	.WHILE gamecontinue    ; begin game
-		*****這裡用了appearTreeA/B判定樹的存在與否*****
-**distanceCheck的用意是確保生成的間隔，如果沒有會很常發生大小樹黏在一起的必死情況**
+		;這裡用了appearTreeA/B判定樹的存在與否
+		;distanceCheck的用意是確保生成的間隔，如果沒有會很常發生大小樹黏在一起的必死情況
 		.IF (appearTreeA==0 || appearTreeB==0) && distanceCheck > 4   ; if there have no tree in screen
 			mov eax, 6
 			call randomRange    ; print tree in randomRange
@@ -207,7 +211,7 @@ game PROC
 		.ENDIF
 
 
-		*****這裡是監聽使用者有沒有按下空白鍵(跳躍)*****
+		;這裡是監聽使用者有沒有按下空白鍵(跳躍)
 		call readkey    ; read keyboard input if available
 		.IF al==20h    ; if equal to space
 			mov al, 1
@@ -216,7 +220,7 @@ game PROC
 		.ENDIF
 
 
-		*****這裡是做路及樹的移動動畫*****
+		;這裡是做路及樹的移動動畫
 		call loopprint    ; continue print underground
 		mov eax, 0
 		.IF gamecontinue==0    ; game over
@@ -250,6 +254,7 @@ game ENDP
 
 --------------------------------------------------------------
 **endgame : 遊戲結束的結算畫面**
+
 endgame PROC
 	call clearRet	;把所有變數都初始化一遍以便之後重新開始不會出問題
 	mGotoXY 35, 3
@@ -302,14 +307,15 @@ clearRet ENDP
 
 --------------------------------------------------------------
 **ifTouch : 判斷方塊是否有撞到樹**
+
 ifTouch PROC    ; 判斷是否有跟出現的樹撞在一起
 	.IF appearTreeA    	;如果是 treeA 出現的話
 		mov al, treeA.linex
 		mov tmp, al
 		add tmp, 8		;tmp為大樹右側的X座標暫存(大樹寬度為8)
 		mov al, diamondX
-		**判斷方塊在樹X座標範圍裡時，Y座標有沒有大於10(較低)**
-		****有就是撞到了，gamecontinue設定為0****
+		;判斷方塊在樹X座標範圍裡時，Y座標有沒有大於10(較低) 
+		;有就是撞到了，gamecontinue設定為0 
 		.IF al>=treeA.linex && al<=tmp
 			.IF diamondY>10
 				mov gamecontinue, 0
@@ -322,7 +328,7 @@ ifTouch PROC    ; 判斷是否有跟出現的樹撞在一起
 		mov tmp, al
 		add tmp, 4		;tmp為小樹右側的X座標暫存(小樹寬度為4)
 		mov al, diamondX
-		*****小樹判斷同理大樹*****
+		;小樹判斷同理大樹 
 		.IF al>treeB.linex && al<tmp
 			.IF diamondY>12
 				mov gamecontinue, 0
@@ -336,15 +342,15 @@ ifTouch ENDP
 --------------------------------------------------------------
 **movDiamond : 方塊的跳躍動作**
 movdiamond PROC    ; 小方塊的移動
-	**因為一開始動作不如預期，我們決定直接讓方塊跳固定高度(到Y=5)**
-**20的原因是從方塊跳起來到最高點在落下會經過20次畫面更新**
+	;因為一開始動作不如預期，我們決定直接讓方塊跳固定高度(到Y=5) 
+	;20的原因是從方塊跳起來到最高點在落下會經過20次畫面更新 
 	.IF movcount==20
 		mov al, 0
 		mov ifmovdiamond, al
 		mov movcount, al
 		ret
 	.ENDIF
-	*****這裡是判斷方塊當前是要向上還向下移動*****
+	;這裡是判斷方塊當前是要向上還向下移動 
 	.IF diamondU
 		mGotoXY diamondX, diamondY
 		mWrite "  "    ; 將原本的蓋掉
@@ -409,7 +415,9 @@ printTreeB PROC    ; 將 treeB 印出
 	call WriteString
 	ret
 printTreeB ENDP
+
 --------------------------------------------------------------
+
 clearTree : 在樹移動到最左邊時把樹清掉
 clearTree PROC    ; 當樹移動到畫面最左邊後，清除樹的動作
 	mGotoXY 1, 10
@@ -427,6 +435,7 @@ clearTree ENDP
 
 --------------------------------------------------------------
 **printBackground : 印出邊框及地板(不會動)**
+
 printBackground PROC    ; 印出背景的框框
 	mov ecx, 13
 	mov edx, offset beginbackground1	;頂層(上面邊框)
@@ -446,6 +455,7 @@ printBackground ENDP
 
 --------------------------------------------------------------
 **loopPrint : 路及樹的移動，方塊移動也有在這裡呼叫**
+
 loopprint PROC
 ; 地板移動效果
 ; 順便將 樹移動效果 以及 小方塊移動判斷 寫在這裡
@@ -494,7 +504,7 @@ loopprint PROC
 	.IF gamecontinue==0	
 		ret		 ;判斷一次有無撞到後要接著判斷有息有沒有結束
 	.ENDIF
-*****以下同理，因為路的動畫設計為5次一循環所以做了5次*****
+	;以下同理，因為路的動畫設計為5次一循環所以做了5次 
 	mGotoXY 0, 15
 	mov eax, delayTime
 	mov edx, offset underground2_2
@@ -664,7 +674,7 @@ loopprint ENDP
 
 --------------------------------------------------------------
 **scoreCount : 計算分數及同步印出在遊玩畫面右上方，隨路的移動增加**
-   路完整移動一次分數+1，所以速度慢分數加的比較慢
+;路完整移動一次分數+1，所以速度慢分數加的比較慢
 scoreCount PROC    ; 做計分的動作
 	mGotoXY 80 , 1
 	mov eax, score
