@@ -45,26 +45,27 @@
   以上都處理好之後，我們開始優化遊戲及增加功能，包括讓障礙物隨機生成會太常造成死局所以增加間隔判定以及加了難度(速度)的變化。
   難度選擇分成S(Simple)、N(Normal)、H(Hard)。這裡簡單的做了防呆機制。如果輸入非以上三者不會繼續遊戲
   這裡我們也增加了結束是否要繼續遊玩的選擇(Y/N)，也簡單的做了防呆，非Y/N輸入就不會繼續動作。其實一開始設計是按Y繼續，按其它鍵退出，但因為在遊玩遊戲時很常有狂按空白鍵還是跳不過障礙物，結果在結束畫面來不及停止按導致程式直接退出所以做了只有N才會跳出遊戲。
- 
-討論或分析 :
-主要連串方式：
-main 
-rule（介紹遊戲規則的畫面）
-selectDefc（選擇遊戲難度）
-game（主要遊戲）
-由 gamecontinue 判斷遊戲是否要持續進行
-使用 appearTreeA、appearTreeB 來判斷畫面上有何種樹生成
-使用 readkey 來接收鍵盤按鍵，並判斷是否是空格
-若是空格的話那小方塊先往上一次，並進入 loopprint 繼續其他動作
-loopprint 主要是重複印出地板以做出動畫效果，另有其他功能在下面的註解
-將 eax 設成 0 是為了重製，接著判斷遊戲是否要結束（小方塊有沒有撞到
-呼叫分數設定，並再一次判斷是不是需要回去
-endgame（遊戲結束後的畫面，以及是否繼續遊戲的按鍵監聽（部分在 main 內）
-先將除了分數以外的其他設定全部重製
-將分數印出來後再將分數重製為 0
-印出結束的畫面，並詢問是否需要再次遊戲
+
+討論或分析：
+	主要連串方式：
+		> main 
+		> rule（介紹遊戲規則的畫面）
+		> selectDefc（選擇遊戲難度）
+		> game（主要遊戲）
+  
+	- 由 gamecontinue 判斷遊戲是否要持續進行
+	- 使用 appearTreeA、appearTreeB 來判斷畫面上有何種樹生成
+	- 使用 readkey 來接收鍵盤按鍵，並判斷是否是空格
+	- 若是空格的話那小方塊先往上一次，並進入 loopprint 繼續其他動作
+	- loopprint 主要是重複印出地板以做出動畫效果，另有其他功能在下面的註解
+	- 將 eax 設成 0 是為了重製，接著判斷遊戲是否要結束（小方塊有沒有撞到
+	- 呼叫分數設定，並再一次判斷是不是需要回去
+	- endgame（遊戲結束後的畫面，以及是否繼續遊戲的按鍵監聽（部分在 main 內）
+		- 先將除了分數以外的其他設定全部重製
+		- 將分數印出來後再將分數重製為 0
+	- 印出結束的畫面，並詢問是否需要再次遊戲
 程式碼:
-main : 在此呼叫所有需要的程式 及 遊戲結束，是否繼續的判定也在這裡
+**main : 在此呼叫所有需要的程式 及 遊戲結束，是否繼續的判定也在這裡**
 main PROC
 	g:
 	call rule
@@ -94,8 +95,9 @@ main PROC
 	.ENDW
 	exit
 main ENDP
+
 --------------------------------------------------------------
-rule : 最開始顯示的畫面，包含了遊戲名字、遊玩說明
+**rule : 最開始顯示的畫面，包含了遊戲名字、遊玩說明**
 rule PROC
 	call printBackground 	;印出邊框以及下方的道路
 	call printTreeA		 	;印出大樹，這裡只是拿來裝飾
@@ -113,8 +115,9 @@ rule PROC
 	mGotoXY 0, 17
 	ret
 rule ENDP
+  
 --------------------------------------------------------------
-selectDefc : 選擇難度
+**selectDefc : 選擇難度**
 selectDefc PROC
     call printBackground
     call printTreeA
@@ -132,7 +135,7 @@ selectDefc PROC
     mGotoXY 20, 9
     mwrite ">---------------------------------------------------<"
     C1:			
- *這裡是做輸入判定，只接受輸入S、N、H及其小寫，分別是簡單、普通、困難難度*
+ ***這裡是做輸入判定，只接受輸入S、N、H及其小寫，分別是簡單、普通、困難難度***
         call readchar
         mov ecx, eax				;將輸入內容暫存到 ecx，eax 後續會用來放置遊戲進行速度
         .IF al=="S" || al=="s"
@@ -175,8 +178,9 @@ selectDefc PROC
     call WaitMsg
     ret
 selectDefc ENDP
+
 --------------------------------------------------------------
-game : 遊戲開始的主要函式
+**game : 遊戲開始的主要函式**
 game PROC
 	call printBackground			;印出邊框及下方地板
 	mGotoXY 73 , 1
@@ -243,8 +247,9 @@ game PROC
 	.ENDW
 	ret
 game ENDP
+
 --------------------------------------------------------------
-endgame : 遊戲結束的結算畫面
+**endgame : 遊戲結束的結算畫面**
 endgame PROC
 	call clearRet	;把所有變數都初始化一遍以便之後重新開始不會出問題
 	mGotoXY 35, 3
@@ -270,8 +275,9 @@ endgame PROC
 	call readchar		;這裡讀入輸入，判斷會回main裡
 	ret
 endgame ENDP
+
 --------------------------------------------------------------
-clearRet : 初始化所有有用到的變數
+**clearRet : 初始化所有有用到的變數**
 clearRet PROC    ; reset
 	mov al, 0
 	mov appearTreeA, al
@@ -293,8 +299,9 @@ clearRet PROC    ; reset
 	mov treeB.linex, al
 	ret
 clearRet ENDP
+
 --------------------------------------------------------------
-ifTouch : 判斷方塊是否有撞到樹
+**ifTouch : 判斷方塊是否有撞到樹**
 ifTouch PROC    ; 判斷是否有跟出現的樹撞在一起
 	.IF appearTreeA    	;如果是 treeA 出現的話
 		mov al, treeA.linex
@@ -325,8 +332,9 @@ ifTouch PROC    ; 判斷是否有跟出現的樹撞在一起
 	.ENDIF
 	ret
 ifTouch ENDP
+
 --------------------------------------------------------------
-movDiamond : 方塊的跳躍動作
+**movDiamond : 方塊的跳躍動作**
 movdiamond PROC    ; 小方塊的移動
 	**因為一開始動作不如預期，我們決定直接讓方塊跳固定高度(到Y=5)**
 **20的原因是從方塊跳起來到最高點在落下會經過20次畫面更新**
@@ -365,8 +373,9 @@ movdiamond PROC    ; 小方塊的移動
 	.ENDIF
 	ret
 movdiamond ENDP
+
 --------------------------------------------------------------
-printTreeA : 印出大樹
+**printTreeA : 印出大樹**
 printTreeA PROC    ; 將 treeA 印出
 	mGotoXY treea.linex, 10
 	mov edx, OFFSET treeA.line1
@@ -385,8 +394,9 @@ printTreeA PROC    ; 將 treeA 印出
 	call WriteString		;最底層
 	ret
 printTreeA ENDP
+
 --------------------------------------------------------------
-printTreeB : 同理大樹印出小樹
+**printTreeB : 同理大樹印出小樹**
 printTreeB PROC    ; 將 treeB 印出
 	mGotoXY treeB.linex, 12
 	mov edx, OFFSET treeB.line1
@@ -414,8 +424,9 @@ clearTree PROC    ; 當樹移動到畫面最左邊後，清除樹的動作
 	mWrite "________"
 	ret
 clearTree ENDP
+
 --------------------------------------------------------------
-printBackground : 印出邊框及地板(不會動)
+**printBackground : 印出邊框及地板(不會動)**
 printBackground PROC    ; 印出背景的框框
 	mov ecx, 13
 	mov edx, offset beginbackground1	;頂層(上面邊框)
@@ -432,8 +443,9 @@ printBackground PROC    ; 印出背景的框框
 	call writestring			;底層(下面邊框)
 	ret
 printBackground ENDP
+
 --------------------------------------------------------------
-loopPrint : 路及樹的移動，方塊移動也有在這裡呼叫
+**loopPrint : 路及樹的移動，方塊移動也有在這裡呼叫**
 loopprint PROC
 ; 地板移動效果
 ; 順便將 樹移動效果 以及 小方塊移動判斷 寫在這裡
@@ -649,8 +661,9 @@ loopprint PROC
 
 	ret
 loopprint ENDP
+
 --------------------------------------------------------------
-scoreCount : 計算分數及同步印出在遊玩畫面右上方，隨路的移動增加
+**scoreCount : 計算分數及同步印出在遊玩畫面右上方，隨路的移動增加**
    路完整移動一次分數+1，所以速度慢分數加的比較慢
 scoreCount PROC    ; 做計分的動作
 	mGotoXY 80 , 1
@@ -659,3 +672,7 @@ scoreCount PROC    ; 做計分的動作
 	inc score
 	ret
 scoreCount ENDP
+
+結論 : 
+	做出一個實時互動的小遊戲比預期中的要更加複雜一點。一開始預期是分工完成細節的函式，最後再用 main 一起結合起來，但在實作中發現，若是在撰寫函式的過程中沒有頻繁的討論的話，要進行整合是一件有點花時間的事情，因為每個人的考慮方向不一樣，計算儲存某一樣變數的方式也不同，更好的一個方法應該是在分工前就寫好虛擬碼，然後再個別詳細撰寫程式碼。
+	撰寫期間的討論也是重要的，大部分的邏輯上的 bug 都是在討論過程中解決。
